@@ -1,4 +1,4 @@
-import type { Booking, ResourceId, Slot, StoreState, User } from './types'
+import type { Booking, ResourceId, Slot, StoreState, User, WaitlistEntry } from './types'
 import { toDateKey, weekdayShort } from './time'
 
 const ACTIVE: Booking['status'][] = ['reserved', 'checked_in']
@@ -186,6 +186,35 @@ export function busiestDay(state: StoreState): string {
   const util = utilisationByWeekday(state)
   if (!util.length) return '—'
   return util.reduce((max, d) => (d.bookedPct > max.bookedPct ? d : max)).day
+}
+
+// ---- Waitlist ----
+
+export function waitlistFor(state: StoreState, date: string, slot: Slot): WaitlistEntry[] {
+  return state.waitlist
+    .filter((w) => w.date === date && (w.slot === 'allday' || slot === 'allday' || w.slot === slot))
+    .sort((a, b) => a.createdAt - b.createdAt)
+}
+
+export function myWaitlistEntry(state: StoreState, date: string, slot: Slot): WaitlistEntry | undefined {
+  return waitlistFor(state, date, slot).find((w) => w.userId === state.currentUserId)
+}
+
+export function waitlistPosition(state: StoreState, entryId: string): number {
+  const entry = state.waitlist.find((w) => w.id === entryId)
+  if (!entry) return -1
+  const ordered = waitlistFor(state, entry.date, entry.slot)
+  return ordered.findIndex((w) => w.id === entryId) + 1
+}
+
+export function myWaitlistEntries(state: StoreState): WaitlistEntry[] {
+  return state.waitlist
+    .filter((w) => w.userId === state.currentUserId)
+    .sort((a, b) => a.createdAt - b.createdAt)
+}
+
+export function isOfficeFull(state: StoreState, date: string, slot: Slot): boolean {
+  return state.desks.every((d) => !!activeBookingFor(state, d.id, date, slot))
 }
 
 // No-show rate across history (booked but never checked in).

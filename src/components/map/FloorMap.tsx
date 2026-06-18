@@ -90,8 +90,8 @@ export function FloorMap({ interactive = false, onSelectDesk, onSelectRoom }: Pr
         return (
           <g
             key={desk.id}
-            onClick={interactive && free ? () => onSelectDesk?.(desk) : undefined}
-            style={{ cursor: interactive && free ? 'pointer' : 'default' }}
+            onClick={interactive && !mine ? () => onSelectDesk?.(desk) : undefined}
+            style={{ cursor: interactive && !mine ? 'pointer' : 'default' }}
           >
             <rect
               x={cx - DESK_W / 2}

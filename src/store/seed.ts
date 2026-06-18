@@ -171,8 +171,10 @@ export function seedState(): StoreState {
     rooms: ROOMS,
     bookings,
     checkIns,
+    waitlist: [],
     currentUserId: 'user-1',
     nowMs,
     lastError: null,
+    lastPromotion: null,
   }
 }
