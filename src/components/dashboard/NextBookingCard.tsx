@@ -45,28 +45,28 @@ export function NextBookingCard({ onBook }: { onBook: () => void }) {
         {prettyDate(booking.date, today)} · {slotLabel(booking.slot)}
       </p>
 
-      <div className="row" style={{ gap: 10, marginTop: 16 }}>
+      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
         {isToday && !checkedIn && (
           <button
-            className="btn"
-            style={{ flex: 1, background: '#fff', color: 'var(--brand-ink)' }}
+            className="btn block"
+            style={{ background: '#fff', color: 'var(--brand-ink)' }}
             onClick={() => dispatch({ type: 'CHECK_IN', bookingId: booking.id })}
           >
             📲 Check in
           </button>
         )}
-        {isToday && checkedIn && (
+        <div className="row" style={{ gap: 10 }}>
+          <button className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.16)', color: '#fff' }} onClick={onBook}>
+            Change desk
+          </button>
           <button
             className="btn"
-            style={{ flex: 1, background: 'rgba(255,255,255,0.16)', color: '#fff' }}
+            style={{ flex: 1, background: 'rgba(239,68,68,0.35)', color: '#fff' }}
             onClick={() => dispatch({ type: 'CANCEL_BOOKING', bookingId: booking.id })}
           >
             Cancel
           </button>
-        )}
-        <button className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.16)', color: '#fff' }} onClick={onBook}>
-          Change desk
-        </button>
+        </div>
       </div>
     </div>
   )

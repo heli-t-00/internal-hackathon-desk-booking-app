@@ -18,7 +18,7 @@ export function DashboardScreen({ onNavigate }: { onNavigate: (t: Tab) => void }
         <p className="muted" style={{ fontSize: 13 }}>
           {weekdayLong(today)} · {prettyDate(today, today) === 'Today' ? 'good to see you' : ''}
         </p>
-        <h1 style={{ fontSize: 26 }}>Hi {me.name === 'You' ? 'there' : me.name} 👋</h1>
+        <h1 style={{ fontSize: 26 }}>Hi {me.name} 👋</h1>
       </header>
 
       <NextBookingCard onBook={() => onNavigate('map')} />

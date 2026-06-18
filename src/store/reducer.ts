@@ -101,6 +101,9 @@ export function reducer(state: StoreState, action: Action): StoreState {
     case 'CLEAR_ERROR':
       return { ...state, lastError: null }
 
+    case 'SET_CURRENT_USER':
+      return { ...state, currentUserId: action.userId }
+
     default:
       return state
   }

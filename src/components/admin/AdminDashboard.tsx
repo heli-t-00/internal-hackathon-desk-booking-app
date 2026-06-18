@@ -11,7 +11,7 @@ import {
 } from '../../store/selectors'
 
 export function AdminDashboard() {
-  const { state } = useStore()
+  const { state, dispatch } = useStore()
   const today = todayKey(state)
   const avail = availabilityForDate(state, today)
   const util = utilisationByWeekday(state)
@@ -24,6 +24,30 @@ export function AdminDashboard() {
       <div style={{ marginBottom: 12 }}>
         <h1 style={{ fontSize: 24 }}>Office insights</h1>
         <p className="muted" style={{ marginTop: 2 }}>What "busy" actually means — from real check-in data.</p>
+      </div>
+
+      <div className="card" style={{ marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>Viewing as</span>
+        <select
+          value={state.currentUserId}
+          onChange={(e) => dispatch({ type: 'SET_CURRENT_USER', userId: e.target.value })}
+          style={{
+            flex: 1,
+            font: 'inherit',
+            fontSize: 13,
+            fontWeight: 600,
+            border: '1px solid var(--line)',
+            borderRadius: 8,
+            padding: '6px 8px',
+            background: 'var(--surface-2)',
+            color: 'var(--ink)',
+            cursor: 'pointer',
+          }}
+        >
+          {state.users.map((u) => (
+            <option key={u.id} value={u.id}>{u.name}</option>
+          ))}
+        </select>
       </div>
 
       {/* headline stats */}

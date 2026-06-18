@@ -82,3 +82,4 @@ export type Action =
   | { type: 'RELEASE_NO_SHOWS' }
   | { type: 'FAST_FORWARD'; minutes: number }
   | { type: 'CLEAR_ERROR' }
+  | { type: 'SET_CURRENT_USER'; userId: UserId }

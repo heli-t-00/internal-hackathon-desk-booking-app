@@ -10,7 +10,7 @@ export function DemoClock() {
     <div
       style={{
         position: 'fixed',
-        top: 'calc(10px + env(safe-area-inset-top))',
+        top: 'calc(var(--tracker-h) + 10px + env(safe-area-inset-top))',
         right: 10,
         zIndex: 45,
         display: 'flex',

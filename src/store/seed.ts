@@ -21,7 +21,7 @@ const TEAMS: Team[] = [
 ]
 
 const USERS: User[] = [
-  { id: 'user-1', name: 'You', initials: 'You', teamId: 'platform' },
+  { id: 'user-1', name: 'Aashvin', initials: 'AV', teamId: 'platform' },
   { id: 'user-ag', name: 'Aisha Gomez', initials: 'AG', teamId: 'design' },
   { id: 'user-af', name: 'Aran Foley', initials: 'AF', teamId: 'design' },
   { id: 'user-zs', name: 'Zoë Sharma', initials: 'ZS', teamId: 'data' },
