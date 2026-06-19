@@ -6,6 +6,7 @@ import { CheckInScreen } from './components/checkin/CheckInScreen'
 import { AdminDashboard } from './components/admin/AdminDashboard'
 import { Toast } from './components/common/Toast'
 import { DemoClock } from './components/common/DemoClock'
+import { NotificationCenter } from './components/notifications/NotificationCenter'
 import { useStore } from './store/StoreContext'
 import { todayKey } from './store/selectors'
 
@@ -72,6 +73,7 @@ export function App() {
 
       <DemoClock />
       <Toast />
+      <NotificationCenter />
 
       <nav
         style={{
