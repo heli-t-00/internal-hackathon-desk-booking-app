@@ -61,6 +61,14 @@ export interface CheckIn {
   at: number
 }
 
+export interface WaitlistEntry {
+  id: string
+  userId: UserId
+  date: string // YYYY-MM-DD
+  slot: Slot
+  createdAt: number
+}
+
 export interface StoreState {
   teams: Team[]
   users: User[]
@@ -68,9 +76,11 @@ export interface StoreState {
   rooms: Room[]
   bookings: Booking[]
   checkIns: CheckIn[]
+  waitlist: WaitlistEntry[]
   currentUserId: UserId
   nowMs: number // demo clock
   lastError: string | null
+  lastPromotion: string | null // shown as a success notification when user is promoted off the waitlist
 }
 
 // ---- Actions ----
@@ -83,3 +93,6 @@ export type Action =
   | { type: 'FAST_FORWARD'; minutes: number }
   | { type: 'CLEAR_ERROR' }
   | { type: 'SET_CURRENT_USER'; userId: UserId }
+  | { type: 'JOIN_WAITLIST'; userId: UserId; date: string; slot: Slot }
+  | { type: 'LEAVE_WAITLIST'; entryId: string }
+  | { type: 'CLEAR_PROMOTION' }

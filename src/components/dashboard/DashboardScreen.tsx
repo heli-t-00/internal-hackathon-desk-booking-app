@@ -2,6 +2,7 @@ import { NextBookingCard } from './NextBookingCard'
 import { MapPreviewTile } from './MapPreviewTile'
 import { OfficeTodayCard } from './OfficeTodayCard'
 import { MyStatsCard } from './MyStatsCard'
+import { WaitlistCard } from './WaitlistCard'
 import { useCurrentUser, useStore } from '../../store/StoreContext'
 import { todayKey } from '../../store/selectors'
 import { prettyDate, weekdayLong } from '../../store/time'
@@ -22,6 +23,7 @@ export function DashboardScreen({ onNavigate }: { onNavigate: (t: Tab) => void }
       </header>
 
       <NextBookingCard onBook={() => onNavigate('map')} />
+      <WaitlistCard />
       <MapPreviewTile onOpen={() => onNavigate('map')} />
       <OfficeTodayCard />
       <MyStatsCard />
