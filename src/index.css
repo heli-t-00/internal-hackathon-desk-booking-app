@@ -19,10 +19,12 @@
   --slate: #8b9bb4;        /* walls, amenity furniture */
 
   /* Team colours */
-  --team-platform: #3b82f6;
-  --team-design: #f59e0b;
-  --team-data: #10b981;
-  --team-sales: #ef4444;
+  --team-devs: #3b82f6;
+  --team-qa: #ef4444;
+  --team-designer: #f59e0b;
+  --team-ba: #10b981;
+  --team-pm: #8b5cf6;
+  --team-ur: #f97316;
 
   --radius: 16px;
   --radius-sm: 10px;

@@ -42,7 +42,7 @@ export interface Room {
 
 export type ResourceType = 'desk' | 'room'
 
-export type BookingStatus = 'reserved' | 'checked_in' | 'released' | 'cancelled'
+export type BookingStatus = 'reserved' | 'checked_in' | 'released' | 'cancelled' | 'team_reserved'
 
 export interface Booking {
   id: string
@@ -61,6 +61,25 @@ export interface CheckIn {
   at: number
 }
 
+export interface TeamReservation {
+  id: string
+  teamId: TeamId
+  createdBy: UserId
+  deskIds: ResourceId[]
+  date: string // YYYY-MM-DD
+  slot: Slot
+  expiresAt: number // ms timestamp — desks release back to office after this
+}
+
+export interface AppNotification {
+  id: string
+  userId: UserId // recipient
+  message: string
+  teamId: TeamId
+  reservationId: string
+  createdAt: number
+}
+
 export interface WaitlistEntry {
   id: string
   userId: UserId
@@ -77,6 +96,8 @@ export interface StoreState {
   bookings: Booking[]
   checkIns: CheckIn[]
   waitlist: WaitlistEntry[]
+  teamReservations: TeamReservation[]
+  notifications: AppNotification[]
   currentUserId: UserId
   nowMs: number // demo clock
   lastError: string | null
@@ -96,3 +117,7 @@ export type Action =
   | { type: 'JOIN_WAITLIST'; userId: UserId; date: string; slot: Slot }
   | { type: 'LEAVE_WAITLIST'; entryId: string }
   | { type: 'CLEAR_PROMOTION' }
+  | { type: 'BLOCK_DESKS_FOR_TEAM'; teamId: TeamId; createdBy: UserId; deskIds: ResourceId[]; date: string; slot: Slot; holdMinutes: number }
+  | { type: 'CLAIM_TEAM_DESK'; bookingId: string; userId: UserId }
+  | { type: 'CANCEL_TEAM_RESERVATION'; reservationId: string }
+  | { type: 'DISMISS_NOTIFICATION'; notificationId: string }

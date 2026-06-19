@@ -1,17 +1,19 @@
 import { useStore } from '../../store/StoreContext'
 import { AMENITIES, DESK_H, DESK_W, DESKS, LOUNGES, OUTLINE, ROOMS, VIEWBOX } from '../../store/floorplan'
 import { activeBookingFor, deskStatus, teamById, todayKey, userById } from '../../store/selectors'
-import type { Desk, Room } from '../../store/types'
+import type { Desk, ResourceId, Room } from '../../store/types'
 
 interface Props {
   interactive?: boolean
+  selectedDeskIds?: Set<ResourceId>
   onSelectDesk?: (desk: Desk) => void
   onSelectRoom?: (room: Room) => void
+  date?: string
 }
 
-export function FloorMap({ interactive = false, onSelectDesk, onSelectRoom }: Props) {
+export function FloorMap({ interactive = false, selectedDeskIds, onSelectDesk, onSelectRoom, date: dateProp }: Props) {
   const { state } = useStore()
-  const date = todayKey(state)
+  const date = dateProp ?? todayKey(state)
 
   return (
     <svg
@@ -81,17 +83,25 @@ export function FloorMap({ interactive = false, onSelectDesk, onSelectRoom }: Pr
       {DESKS.map((desk) => {
         const cell = deskStatus(state, desk.id, date)
         const team = cell.byUser ? teamById(state, cell.byUser.teamId) : undefined
+        const reservedTeam = cell.teamReservedFor ? teamById(state, cell.teamReservedFor) : undefined
         const free = cell.status === 'free'
         const mine = cell.status === 'mine'
-        const fill = free ? '#ffffff' : mine ? '#dbeafe' : 'rgba(0,0,0,0)'
-        const stroke = mine ? 'var(--brand)' : free ? 'var(--line)' : team?.colour ?? 'var(--slate)'
+        const teamMine = cell.status === 'team_mine'
+        const teamOther = cell.status === 'team_other'
+        const isSelected = selectedDeskIds?.has(desk.id) ?? false
+
+        const fill = free || isSelected ? (isSelected ? '#dbeafe' : '#ffffff') : mine ? '#dbeafe' : teamMine ? (reservedTeam?.colour ?? '#dbeafe') + '33' : teamOther ? '#f3f4f6' : 'rgba(0,0,0,0)'
+        const stroke = isSelected ? 'var(--brand)' : mine ? 'var(--brand)' : free ? 'var(--line)' : teamMine ? reservedTeam?.colour ?? 'var(--brand)' : teamOther ? reservedTeam?.colour ?? 'var(--slate)' : team?.colour ?? 'var(--slate)'
+        const strokeWidth = mine || isSelected || teamMine ? 2.5 : 1.5
+        const strokeDasharray = teamMine || teamOther ? '4 2' : undefined
         const cx = desk.x
         const cy = desk.y
+        const clickable = interactive && !mine && (free || teamMine || teamOther)
         return (
           <g
             key={desk.id}
-            onClick={interactive && !mine ? () => onSelectDesk?.(desk) : undefined}
-            style={{ cursor: interactive && !mine ? 'pointer' : 'default' }}
+            onClick={clickable ? () => onSelectDesk?.(desk) : undefined}
+            style={{ cursor: clickable ? 'pointer' : 'default' }}
           >
             <rect
               x={cx - DESK_W / 2}
@@ -101,13 +111,18 @@ export function FloorMap({ interactive = false, onSelectDesk, onSelectRoom }: Pr
               rx={7}
               fill={fill}
               stroke={stroke}
-              strokeWidth={mine ? 2.5 : 1.5}
+              strokeWidth={strokeWidth}
+              strokeDasharray={strokeDasharray}
             />
-            {!free && !mine && team && (
+            {!free && !mine && !teamMine && !teamOther && team && (
               <rect x={cx - DESK_W / 2} y={cy - DESK_H / 2} width={DESK_W} height={DESK_H} rx={7} fill={team.colour} opacity={0.16} />
             )}
             {free ? (
-              <circle cx={cx} cy={cy} r={9} fill="var(--green)" />
+              <circle cx={cx} cy={cy} r={9} fill={isSelected ? 'var(--brand)' : 'var(--green)'} />
+            ) : teamMine ? (
+              <text x={cx} y={cy + 4} textAnchor="middle" fontSize={10} fontWeight={700} fill={reservedTeam?.colour ?? 'var(--brand)'}>CLAIM</text>
+            ) : teamOther ? (
+              <text x={cx} y={cy + 4} textAnchor="middle" fontSize={9} fontWeight={600} fill="var(--ink-faint)">HELD</text>
             ) : (
               <text x={cx} y={cy + 4} textAnchor="middle" fontSize={12} fontWeight={700} fill={mine ? 'var(--brand-ink)' : team?.colour ?? '#445'}>
                 {mine ? 'You' : cell.byUser?.initials}

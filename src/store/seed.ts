@@ -14,32 +14,34 @@ function mulberry32(seed: number) {
 }
 
 const TEAMS: Team[] = [
-  { id: 'platform', name: 'Platform', colour: 'var(--team-platform)' },
-  { id: 'design', name: 'Design', colour: 'var(--team-design)' },
-  { id: 'data', name: 'Data', colour: 'var(--team-data)' },
-  { id: 'sales', name: 'Sales', colour: 'var(--team-sales)' },
+  { id: 'devs', name: 'Devs', colour: 'var(--team-devs)' },
+  { id: 'qa', name: 'QA', colour: 'var(--team-qa)' },
+  { id: 'designer', name: 'Designer', colour: 'var(--team-designer)' },
+  { id: 'ba', name: 'BA', colour: 'var(--team-ba)' },
+  { id: 'pm', name: 'PM', colour: 'var(--team-pm)' },
+  { id: 'ur', name: 'UR', colour: 'var(--team-ur)' },
 ]
 
 const USERS: User[] = [
-  { id: 'user-1', name: 'Aashvin', initials: 'AV', teamId: 'platform' },
-  { id: 'user-ag', name: 'Aisha Gomez', initials: 'AG', teamId: 'design' },
-  { id: 'user-af', name: 'Aran Foley', initials: 'AF', teamId: 'design' },
-  { id: 'user-zs', name: 'Zoë Sharma', initials: 'ZS', teamId: 'data' },
-  { id: 'user-ab', name: 'Ade Bello', initials: 'AB', teamId: 'platform' },
-  { id: 'user-ar', name: 'Ana Ruiz', initials: 'AR', teamId: 'sales' },
-  { id: 'user-mk', name: 'Mia Khan', initials: 'MK', teamId: 'data' },
-  { id: 'user-jt', name: 'Jon Tan', initials: 'JT', teamId: 'sales' },
-  { id: 'user-lp', name: 'Leo Park', initials: 'LP', teamId: 'platform' },
-  { id: 'user-nd', name: 'Nina Dahl', initials: 'ND', teamId: 'design' },
-  { id: 'user-rc', name: 'Raj Chand', initials: 'RC', teamId: 'data' },
-  { id: 'user-eo', name: 'Eve Owusu', initials: 'EO', teamId: 'platform' },
+  { id: 'user-1', name: 'Aashvin', initials: 'AV', teamId: 'devs' },
+  { id: 'user-ag', name: 'Aisha Gomez', initials: 'AG', teamId: 'designer' },
+  { id: 'user-af', name: 'Aran Foley', initials: 'AF', teamId: 'qa' },
+  { id: 'user-zs', name: 'Zoë Sharma', initials: 'ZS', teamId: 'ba' },
+  { id: 'user-ab', name: 'Ade Bello', initials: 'AB', teamId: 'devs' },
+  { id: 'user-ar', name: 'Ana Ruiz', initials: 'AR', teamId: 'pm' },
+  { id: 'user-mk', name: 'Mia Khan', initials: 'MK', teamId: 'ur' },
+  { id: 'user-jt', name: 'Jon Tan', initials: 'JT', teamId: 'pm' },
+  { id: 'user-lp', name: 'Leo Park', initials: 'LP', teamId: 'devs' },
+  { id: 'user-nd', name: 'Nina Dahl', initials: 'ND', teamId: 'designer' },
+  { id: 'user-rc', name: 'Raj Chand', initials: 'RC', teamId: 'ba' },
+  { id: 'user-eo', name: 'Eve Owusu', initials: 'EO', teamId: 'qa' },
 ]
 
 // Occupancy ratio by weekday — Tue/Wed busy, Fri dead.
 const RATIO_BY_DAY: Record<number, number> = { 1: 0.6, 2: 0.85, 3: 0.85, 4: 0.7, 5: 0.25 }
 
 const ALL_DESK_NUMBERS = DESKS.map((d) => d.number)
-const SALES_USERS = USERS.filter((u) => u.teamId === 'sales')
+const SALES_USERS = USERS.filter((u) => u.teamId === 'pm')
 const NON_YOU_USERS = USERS.filter((u) => u.id !== 'user-1')
 
 let counter = 0
@@ -172,6 +174,8 @@ export function seedState(): StoreState {
     bookings,
     checkIns,
     waitlist: [],
+    teamReservations: [],
+    notifications: [],
     currentUserId: 'user-1',
     nowMs,
     lastError: null,

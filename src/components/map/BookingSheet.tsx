@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BottomSheet } from '../common/BottomSheet'
 import { useStore } from '../../store/StoreContext'
-import { activeBookingFor, isOfficeFull, myWaitlistEntry, todayKey, waitlistFor, waitlistPosition } from '../../store/selectors'
+import { activeBookingFor, deskStatus, isOfficeFull, myWaitlistEntry, todayKey, waitlistFor, waitlistPosition } from '../../store/selectors'
 import { prettyDate, slotLabel } from '../../store/time'
 import type { ResourceType, Slot } from '../../store/types'
 
@@ -14,18 +14,22 @@ export interface BookingTarget {
 
 const SLOTS: Slot[] = ['morning', 'afternoon', 'allday']
 
-export function BookingSheet({ target, onClose }: { target: BookingTarget | null; onClose: () => void }) {
+export function BookingSheet({ target, date: dateProp, onClose }: { target: BookingTarget | null; date?: string; onClose: () => void }) {
   const { state, dispatch } = useStore()
   const [slot, setSlot] = useState<Slot>('allday')
   const today = todayKey(state)
+  const date = dateProp ?? today
 
   if (!target) return null
 
-  const resourceTaken = !!activeBookingFor(state, target.resourceId, today, slot)
-  const officeFull = target.resourceType === 'desk' && isOfficeFull(state, today, slot)
-  const myEntry = target.resourceType === 'desk' ? myWaitlistEntry(state, today, slot) : undefined
+  const cell = target.resourceType === 'desk' ? deskStatus(state, target.resourceId, date) : null
+  const isTeamMine = cell?.status === 'team_mine'
+  const isTeamOther = cell?.status === 'team_other'
+  const resourceTaken = !!activeBookingFor(state, target.resourceId, date, slot)
+  const officeFull = target.resourceType === 'desk' && !isTeamMine && isOfficeFull(state, date, slot)
+  const myEntry = target.resourceType === 'desk' ? myWaitlistEntry(state, date, slot) : undefined
   const myPos = myEntry ? waitlistPosition(state, myEntry.id) : undefined
-  const queueLength = waitlistFor(state, today, slot).length
+  const queueLength = waitlistFor(state, date, slot).length
 
   const book = () => {
     dispatch({
@@ -33,14 +37,20 @@ export function BookingSheet({ target, onClose }: { target: BookingTarget | null
       resourceId: target.resourceId,
       resourceType: target.resourceType,
       userId: state.currentUserId,
-      date: today,
+      date,
       slot,
     })
     onClose()
   }
 
+  const claimTeamDesk = () => {
+    const booking = activeBookingFor(state, target!.resourceId, date)
+    if (booking) dispatch({ type: 'CLAIM_TEAM_DESK', bookingId: booking.id, userId: state.currentUserId })
+    onClose()
+  }
+
   const joinWaitlist = () => {
-    dispatch({ type: 'JOIN_WAITLIST', userId: state.currentUserId, date: today, slot })
+    dispatch({ type: 'JOIN_WAITLIST', userId: state.currentUserId, date, slot })
     onClose()
   }
 
@@ -52,7 +62,7 @@ export function BookingSheet({ target, onClose }: { target: BookingTarget | null
   const slotPicker = (
     <>
       <div className="section-title" style={{ marginTop: 18 }}>
-        {prettyDate(today, today)} · choose a slot
+        {prettyDate(date, today)} · choose a slot
       </div>
       <div className="row" style={{ gap: 8 }}>
         {SLOTS.map((s) => (
@@ -72,6 +82,39 @@ export function BookingSheet({ target, onClose }: { target: BookingTarget | null
       </div>
     </>
   )
+
+  // Desk is team-reserved for MY team — show claim option
+  if (isTeamMine) {
+    return (
+      <BottomSheet open={!!target} onClose={onClose}>
+        <h2 style={{ fontSize: 20 }}>{target.title}</h2>
+        <p className="muted" style={{ marginTop: 4 }}>{target.subtitle}</p>
+        <div style={{ marginTop: 18, padding: '14px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10 }}>
+          <div style={{ fontWeight: 600, fontSize: 14, color: '#1d4ed8' }}>Reserved for your team</div>
+          <div style={{ fontSize: 13, color: '#1e40af', marginTop: 4 }}>This desk is held for your team — claim it before the hold expires.</div>
+        </div>
+        <button className="btn block" style={{ marginTop: 12 }} onClick={claimTeamDesk}>
+          Claim this desk
+        </button>
+      </BottomSheet>
+    )
+  }
+
+  // Desk is team-reserved for ANOTHER team
+  if (isTeamOther) {
+    return (
+      <BottomSheet open={!!target} onClose={onClose}>
+        <h2 style={{ fontSize: 20 }}>{target.title}</h2>
+        <p className="muted" style={{ marginTop: 4 }}>{target.subtitle}</p>
+        <div style={{ marginTop: 18, padding: '12px 14px', background: 'var(--surface-2)', borderRadius: 10, fontSize: 13.5, color: 'var(--ink-faint)' }}>
+          This desk is currently held for another team. It will open to everyone once their hold window expires.
+        </div>
+        <button className="btn block" style={{ marginTop: 12, background: 'var(--surface-2)', color: 'var(--ink)' }} onClick={onClose}>
+          Back to map
+        </button>
+      </BottomSheet>
+    )
+  }
 
   // Desk is taken but other desks are free — nudge back to the map
   if (resourceTaken && target.resourceType === 'desk' && !officeFull) {
@@ -96,7 +139,7 @@ export function BookingSheet({ target, onClose }: { target: BookingTarget | null
       return (
         <BottomSheet open={!!target} onClose={onClose}>
           <h2 style={{ fontSize: 20 }}>Office is full</h2>
-          <p className="muted" style={{ marginTop: 4 }}>All desks are booked for {slotLabel(slot).toLowerCase()} today.</p>
+          <p className="muted" style={{ marginTop: 4 }}>All desks are booked for {slotLabel(slot).toLowerCase()} on {prettyDate(date, today).toLowerCase()}.</p>
           {slotPicker}
           <div style={{ marginTop: 18, padding: '14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10 }}>
             <div style={{ fontWeight: 600, fontSize: 14, color: '#15803d' }}>You're on the waitlist</div>
@@ -114,7 +157,7 @@ export function BookingSheet({ target, onClose }: { target: BookingTarget | null
     return (
       <BottomSheet open={!!target} onClose={onClose}>
         <h2 style={{ fontSize: 20 }}>Office is full</h2>
-        <p className="muted" style={{ marginTop: 4 }}>All desks are booked for {slotLabel(slot).toLowerCase()} today.</p>
+        <p className="muted" style={{ marginTop: 4 }}>All desks are booked for {slotLabel(slot).toLowerCase()} on {prettyDate(date, today).toLowerCase()}.</p>
         {slotPicker}
         <div style={{ marginTop: 18, padding: '12px 14px', background: 'var(--surface-2)', borderRadius: 10, fontSize: 13.5, color: 'var(--ink-faint)' }}>
           {queueLength > 0 ? `${queueLength} ${queueLength === 1 ? 'person is' : 'people are'} already waiting.` : 'Join the waitlist and you\'ll be booked automatically if a desk opens up.'}

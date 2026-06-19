@@ -1,7 +1,7 @@
-import type { Action, Booking, ResourceId, Slot, StoreState, WaitlistEntry } from './types'
+import type { Action, AppNotification, Booking, ResourceId, Slot, StoreState, TeamReservation, WaitlistEntry } from './types'
 import { DAY_MS, slotStartHour, toDateKey } from './time'
 
-const ACTIVE: Booking['status'][] = ['reserved', 'checked_in']
+const ACTIVE: Booking['status'][] = ['reserved', 'checked_in', 'team_reserved']
 
 function slotsOverlap(a: Slot, b: Slot): boolean {
   if (a === 'allday' || b === 'allday') return true
@@ -157,7 +157,22 @@ export function reducer(state: StoreState, action: Action): StoreState {
         if (result.promotionMsg) lastPromotion = result.promotionMsg
       }
 
-      return { ...state, bookings: [...bookings, ...promoted], waitlist, lastPromotion }
+      // Expire team reservations whose hold window has passed
+      const expiredReservations = state.teamReservations.filter((r) => state.nowMs >= r.expiresAt)
+      const expiredIds = new Set(expiredReservations.map((r) => r.id))
+      const expiredDeskIds = new Set(expiredReservations.flatMap((r) => r.deskIds))
+      const bookingsAfterExpiry = [...bookings, ...promoted].map((b) =>
+        b.status === 'team_reserved' && expiredDeskIds.has(b.resourceId) ? { ...b, status: 'released' as const } : b,
+      )
+
+      return {
+        ...state,
+        bookings: bookingsAfterExpiry,
+        waitlist,
+        lastPromotion,
+        teamReservations: state.teamReservations.filter((r) => !expiredIds.has(r.id)),
+        notifications: state.notifications.filter((n) => !expiredIds.has(n.reservationId)),
+      }
     }
 
     case 'FAST_FORWARD':
@@ -182,6 +197,81 @@ export function reducer(state: StoreState, action: Action): StoreState {
 
     case 'CLEAR_PROMOTION':
       return { ...state, lastPromotion: null }
+
+    case 'BLOCK_DESKS_FOR_TEAM': {
+      const { teamId, createdBy, deskIds, date, slot, holdMinutes } = action
+      const expiresAt = state.nowMs + holdMinutes * 60 * 1000
+      const reservation: TeamReservation = {
+        id: nextId('tr'),
+        teamId,
+        createdBy,
+        deskIds,
+        date,
+        slot,
+        expiresAt,
+      }
+      const newBookings: Booking[] = deskIds
+        .filter((deskId) => !isConflict(state, deskId, date, slot))
+        .map((deskId) => ({
+          id: nextId('bk'),
+          resourceId: deskId,
+          resourceType: 'desk' as const,
+          userId: createdBy,
+          date,
+          slot,
+          status: 'team_reserved' as const,
+          createdAt: state.nowMs,
+        }))
+
+      // Notify all teammates (everyone in teamId except the booker)
+      const teammates = state.users.filter((u) => u.teamId === teamId && u.id !== createdBy)
+      const expiryTime = new Date(expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      const newNotifications: AppNotification[] = teammates.map((u) => ({
+        id: nextId('notif'),
+        userId: u.id,
+        teamId,
+        reservationId: reservation.id,
+        message: `Your team has ${newBookings.length} desk${newBookings.length !== 1 ? 's' : ''} reserved — claim yours before ${expiryTime}.`,
+        createdAt: state.nowMs,
+      }))
+
+      return {
+        ...state,
+        bookings: [...state.bookings, ...newBookings],
+        teamReservations: [...state.teamReservations, reservation],
+        notifications: [...state.notifications, ...newNotifications],
+      }
+    }
+
+    case 'CLAIM_TEAM_DESK': {
+      const { bookingId, userId } = action
+      const booking = state.bookings.find((b) => b.id === bookingId)
+      if (!booking || booking.status !== 'team_reserved') return state
+      return {
+        ...state,
+        bookings: state.bookings.map((b) =>
+          b.id === bookingId ? { ...b, userId, status: 'reserved' as const } : b,
+        ),
+      }
+    }
+
+    case 'CANCEL_TEAM_RESERVATION': {
+      const reservation = state.teamReservations.find((r) => r.id === action.reservationId)
+      if (!reservation) return state
+      return {
+        ...state,
+        bookings: state.bookings.map((b) =>
+          reservation.deskIds.includes(b.resourceId) && b.date === reservation.date && b.status === 'team_reserved'
+            ? { ...b, status: 'cancelled' as const }
+            : b,
+        ),
+        teamReservations: state.teamReservations.filter((r) => r.id !== action.reservationId),
+        notifications: state.notifications.filter((n) => n.reservationId !== action.reservationId),
+      }
+    }
+
+    case 'DISMISS_NOTIFICATION':
+      return { ...state, notifications: state.notifications.filter((n) => n.id !== action.notificationId) }
 
     default:
       return state

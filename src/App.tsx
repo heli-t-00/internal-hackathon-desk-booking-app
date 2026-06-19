@@ -14,7 +14,7 @@ export type Tab = 'home' | 'map' | 'chat' | 'checkin' | 'admin'
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home', label: 'Home', icon: '🏠' },
   { id: 'map', label: 'Map', icon: '🗺️' },
-  { id: 'chat', label: 'Book', icon: '💬' },
+  { id: 'chat', label: 'Chat', icon: '💬' },
   { id: 'checkin', label: 'Check in', icon: '📲' },
   { id: 'admin', label: 'Insights', icon: '📊' },
 ]

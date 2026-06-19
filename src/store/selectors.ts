@@ -34,16 +34,22 @@ export function activeBookingFor(state: StoreState, resourceId: ResourceId, date
   )
 }
 
-export type DeskCellStatus = 'free' | 'mine' | 'occupied'
+export type DeskCellStatus = 'free' | 'mine' | 'occupied' | 'team_mine' | 'team_other'
 export interface DeskCell {
   status: DeskCellStatus
   byUser?: User
   checkedIn: boolean
+  teamReservedFor?: string // teamId
 }
 
 export function deskStatus(state: StoreState, deskId: ResourceId, date: string): DeskCell {
   const b = activeBookingFor(state, deskId, date)
   if (!b) return { status: 'free', checkedIn: false }
+  if (b.status === 'team_reserved') {
+    const myTeam = userById(state, state.currentUserId)?.teamId
+    const isMyTeam = myTeam === state.teamReservations.find((r) => r.deskIds.includes(deskId) && r.date === date)?.teamId
+    return { status: isMyTeam ? 'team_mine' : 'team_other', checkedIn: false, teamReservedFor: state.teamReservations.find((r) => r.deskIds.includes(deskId) && r.date === date)?.teamId }
+  }
   const mine = b.userId === state.currentUserId
   return {
     status: mine ? 'mine' : 'occupied',
@@ -186,6 +192,25 @@ export function busiestDay(state: StoreState): string {
   const util = utilisationByWeekday(state)
   if (!util.length) return '—'
   return util.reduce((max, d) => (d.bookedPct > max.bookedPct ? d : max)).day
+}
+
+// ---- Team reservations ----
+
+export function myTeamReservation(state: StoreState, date: string) {
+  const myTeamId = userById(state, state.currentUserId)?.teamId
+  return state.teamReservations.find((r) => r.teamId === myTeamId && r.date === date) ?? null
+}
+
+export function myTeamNotifications(state: StoreState) {
+  return state.notifications.filter((n) => n.userId === state.currentUserId)
+}
+
+export function teamReservationDesks(state: StoreState, reservationId: string) {
+  const r = state.teamReservations.find((tr) => tr.id === reservationId)
+  if (!r) return []
+  return r.deskIds
+    .map((id) => state.desks.find((d) => d.id === id))
+    .filter(Boolean) as import('./types').Desk[]
 }
 
 // ---- Waitlist ----
