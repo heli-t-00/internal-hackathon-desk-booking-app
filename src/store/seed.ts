@@ -145,8 +145,8 @@ export function seedState(): StoreState {
   occupiedToday.add(30)
   pushBooking({ resourceId: 'desk-30', resourceType: 'desk', userId: 'user-1', date: todayKey, slot: 'allday', status: 'reserved', createdAt: nowMs - 3600_000 }, false)
 
-  // Fill to ~60% occupancy with a mix of checked-in and a few un-checked (so fast-forward releases them).
-  const target = Math.round(ALL_DESK_NUMBERS.length * 0.6)
+  // Fill to 100% occupancy so the waitlist flow is immediately demoable.
+  const target = ALL_DESK_NUMBERS.length
   const remaining = shuffle(ALL_DESK_NUMBERS.filter((n) => !occupiedToday.has(n)), rnd)
   let r = 0
   while (occupiedToday.size < target && r < remaining.length) {
