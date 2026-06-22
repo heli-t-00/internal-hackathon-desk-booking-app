@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeskFlow — Demo Presentation</title>
+<style>
+  :root {
+    --brand: #4F46E5;
+    --brand-light: #EEF2FF;
+    --accent: #10B981;
+    --warn: #F59E0B;
+    --danger: #EF4444;
+    --ink: #111827;
+    --ink-soft: #6B7280;
+    --surface: #FFFFFF;
+    --surface-2: #F9FAFB;
+    --line: #E5E7EB;
+    --devs: #3B82F6;
+    --qa: #8B5CF6;
+    --designer: #10B981;
+    --ba: #F97316;
+    --pm: #EC4899;
+    --ur: #14B8A6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0F0F1A;
+    color: var(--ink);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .slides-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* Slide backgrounds */
+  .slide-title { background: linear-gradient(135deg, #0F0F1A 0%, #1E1B4B 50%, #312E81 100%); }
+  .slide-problem { background: linear-gradient(135deg, #1A0A0A 0%, #2D1515 100%); }
+  .slide-solution { background: linear-gradient(135deg, #0A1A14 0%, #0D2B1F 100%); }
+  .slide-feature { background: var(--surface-2); }
+  .slide-data { background: linear-gradient(135deg, #0A0A1A 0%, #0F0F2E 100%); }
+  .slide-closing { background: linear-gradient(135deg, #0F0F1A 0%, #1E1B4B 50%, #312E81 100%); }
+
+  /* Typography */
+  .slide-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .slide-title .slide-label { color: #818CF8; }
+  .slide-problem .slide-label { color: #F87171; }
+  .slide-solution .slide-label { color: #34D399; }
+  .slide-feature .slide-label { color: var(--brand); }
+  .slide-data .slide-label { color: #60A5FA; }
+  .slide-closing .slide-label { color: #818CF8; }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  h3 {
+    font-size: clamp(18px, 2vw, 26px);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .slide-title h1, .slide-closing h1 { color: white; }
+  .slide-problem h2 { color: white; }
+  .slide-solution h2 { color: white; }
+  .slide-data h2 { color: white; }
+
+  .subtitle {
+    font-size: clamp(16px, 1.8vw, 22px);
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+
+  .slide-title .subtitle { color: #A5B4FC; }
+  .slide-problem .subtitle { color: #FCA5A5; }
+  .slide-solution .subtitle { color: #6EE7B7; }
+  .slide-data .subtitle { color: #93C5FD; }
+  .slide-closing .subtitle { color: #A5B4FC; }
+
+  /* Cards & layouts */
+  .card-grid {
+    display: grid;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border: 1px solid var(--line);
+  }
+
+  .card-dark {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .icon-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  /* Problem slide specifics */
+  .problem-stat {
+    text-align: center;
+    padding: 32px 24px;
+  }
+
+  .stat-number {
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Feature slides */
+  .feature-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    width: 100%;
+    max-width: 1100px;
+    align-items: start;
+  }
+
+  .feature-points {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .feature-point {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .point-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .point-dot.brand { background: var(--brand-light); color: var(--brand); }
+  .point-dot.accent { background: #D1FAE5; color: #065F46; }
+  .point-dot.warn { background: #FEF3C7; color: #92400E; }
+
+  .point-text h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .point-text p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  /* Phone mockup */
+  .phone-mockup {
+    background: #1A1A2E;
+    border-radius: 44px;
+    padding: 14px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+    width: 240px;
+    margin: 0 auto;
+  }
+
+  .phone-screen {
+    background: var(--surface-2);
+    border-radius: 32px;
+    overflow: hidden;
+    aspect-ratio: 9/19;
+    position: relative;
+  }
+
+  .phone-screen-inner {
+    padding: 16px 12px;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Chat bubbles */
+  .chat-msg {
+    border-radius: 18px;
+    padding: 10px 14px;
+    font-size: 11px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    max-width: 80%;
+  }
+
+  .chat-user {
+    background: var(--brand);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
+
+  .chat-bot {
+    background: white;
+    color: var(--ink);
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .chat-confirm-btn {
+    background: var(--brand);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 6px;
+    display: block;
+    text-align: center;
+  }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .timeline-item:not(:last-child) .timeline-line {
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: -8px;
+    width: 2px;
+    background: rgba(255,255,255,0.15);
+  }
+
+  .timeline-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    margin-bottom: 20px;
+    z-index: 1;
+  }
+
+  .timeline-content {
+    padding-top: 8px;
+    padding-bottom: 20px;
+  }
+
+  .timeline-content h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .timeline-content p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+  }
+
+  .timeline-time {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* Insight bars */
+  .insight-row {
+    margin-bottom: 10px;
+  }
+
+  .insight-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .insight-bar-bg {
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .insight-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .insight-bar-fill.booked { background: rgba(99, 102, 241, 0.7); }
+  .insight-bar-fill.checkedin { background: #10B981; }
+
+  /* Tags */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .tag-devs { background: rgba(59,130,246,0.15); color: #60A5FA; }
+  .tag-qa { background: rgba(139,92,246,0.15); color: #A78BFA; }
+  .tag-designer { background: rgba(16,185,129,0.15); color: #34D399; }
+  .tag-ba { background: rgba(249,115,22,0.15); color: #FB923C; }
+  .tag-pm { background: rgba(236,72,153,0.15); color: #F472B6; }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    padding: 10px 20px;
+    z-index: 100;
+  }
+
+  .nav-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .nav-btn:hover { background: rgba(255,255,255,0.25); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .nav-counter {
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .progress-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .dot.active {
+    background: white;
+    width: 20px;
+    border-radius: 3px;
+  }
+
+  /* Slide-in animation for cards */
+  .animate-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+    transition-delay: var(--delay, 0s);
+  }
+
+  .slide.active .animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Desk grid mini */
+  .desk-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    padding: 16px;
+  }
+
+  .desk-mini {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .desk-mini.booked { background: #3B82F6; }
+  .desk-mini.team { background: #8B5CF6; }
+  .desk-mini.free { background: #E5E7EB; color: #9CA3AF; }
+  .desk-mini.me { background: #4F46E5; box-shadow: 0 0 0 2px white, 0 0 0 4px #4F46E5; }
+
+  /* Tech stack badges */
+  .tech-badge {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Waitlist flow */
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .flow-arrow {
+    color: rgba(255,255,255,0.3);
+    font-size: 20px;
+  }
+
+  /* Notification toast */
+  .notif-toast {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    max-width: 340px;
+    width: 100%;
+  }
+
+  .notif-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #D1FAE5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .notif-text .notif-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .notif-text .notif-body {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+
+  /* Keyboard hint */
+  .kbd {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    font-family: monospace;
+  }
+
+  .key-hint {
+    position: fixed;
+    top: 24px;
+    right: 28px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: rgba(255,255,255,0.3);
+    font-size: 12px;
+    z-index: 100;
+  }
+
+  /* Slide number */
+  .slide-number {
+    position: fixed;
+    top: 24px;
+    left: 28px;
+    color: rgba(255,255,255,0.25);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    z-index: 100;
+  }
+
+  /* Vertical flow diagram */
+  .vflow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .vflow-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 13px 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+  }
+
+  .vflow-actor {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 112px;
+    text-align: center;
+  }
+
+  .vflow-step-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .vflow-step-content strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 3px;
+  }
+
+  .vflow-step-content p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  .vflow-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 2px 0;
+  }
+
+  .vflow-connector-line {
+    width: 2px;
+    height: 16px;
+    background: rgba(255,255,255,0.15);
+  }
+
+  .vflow-connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid rgba(255,255,255,0.15);
+  }
+
+  .vflow-branch-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 6px 0 4px;
+  }
+
+  .vflow-outcomes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .vflow-outcome {
+    padding: 14px 16px;
+    border-radius: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .vflow-outcome.yes {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.25);
+  }
+
+  .vflow-outcome.no {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+
+  .vflow-outcome-icon { font-size: 22px; flex-shrink: 0; }
+
+  .vflow-outcome.yes strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #34D399;
+    margin-bottom: 4px;
+  }
+
+  .vflow-outcome.no strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #F87171;
+    margin-bottom: 4px;
+  }
+
+  .vflow-outcome p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+  }
+
+  .slide-roadmap { background: linear-gradient(135deg, #0F0F1A 0%, #0D1A2B 60%, #0A1520 100%); }
+  .slide-roadmap .slide-label { color: #60A5FA; }
+  .slide-roadmap h2 { color: white; }
+</style>
+</head>
+<body>
+
+<div class="slide-number" id="slideNumber">01 / 12</div>
+
+<div class="key-hint">
+  <kbd>←</kbd><kbd>→</kbd> to navigate &nbsp;·&nbsp; <kbd>Space</kbd> advance
+</div>
+
+<div class="slides-container" id="slidesContainer">
+
+  <!-- SLIDE 1: Title -->
+  <div class="slide slide-title active" data-slide="0">
+    <div class="slide-label animate-in" style="--delay:0.05s">Internal Hackathon 2026</div>
+    <h1 class="animate-in" style="--delay:0.1s">Desk<span style="color:#818CF8">Flow</span></h1>
+    <p class="subtitle animate-in" style="--delay:0.18s">
+      Office desk &amp; room booking that people<br>actually want to use.
+    </p>
+    <div style="display:flex; gap:10px; margin-top:40px; flex-wrap:wrap; justify-content:center;" class="animate-in" style="--delay:0.28s">
+      <span class="tag tag-devs">React 18</span>
+      <span class="tag tag-qa">TypeScript</span>
+      <span class="tag tag-designer">Mobile-first PWA</span>
+      <span class="tag tag-ba">AI chat booking</span>
+      <span class="tag tag-pm">Real-time insights</span>
+    </div>
+    <p style="color:rgba(255,255,255,0.25); font-size:13px; margin-top:48px;" class="animate-in" style="--delay:0.35s">
+      15-min demo &nbsp;·&nbsp; 2026-06-22
+    </p>
+  </div>
+
+  <!-- SLIDE 2: The Problem -->
+  <div class="slide slide-problem" data-slide="1">
+    <div class="slide-label">The Problem</div>
+    <h2>Our booking tool is broken.</h2>
+    <p class="subtitle" style="margin-bottom:40px;">People book desks and never show up. Teams can't coordinate. Nobody trusts the data.</p>
+    <div class="card-grid card-grid-3" style="max-width:900px">
+      <div class="card-dark problem-stat animate-in" style="--delay:0.1s">
+        <div class="stat-number" style="color:#F87171;">~20%</div>
+        <div class="stat-label" style="color:rgba(255,255,255,0.55);">of booked desks are<br><strong style="color:#FCA5A5;">no-shows</strong> every day</div>
+      </div>
+      <div class="card-dark problem-stat animate-in" style="--delay:0.18s">
+        <div class="stat-number" style="color:#FBBF24;">❓</div>
+        <div class="stat-label" style="color:rgba(255,255,255,0.55);">No way to see<br><strong style="color:#FDE68A;">where your team sits</strong><br>before you come in</div>
+      </div>
+      <div class="card-dark problem-stat animate-in" style="--delay:0.26s">
+        <div class="stat-number" style="color:#A78BFA;">📋</div>
+        <div class="stat-label" style="color:rgba(255,255,255,0.55);">Office managers flying<br><strong style="color:#C4B5FD;">blind on utilisation</strong><br>with no actionable data</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: The Solution -->
+  <div class="slide slide-solution" data-slide="2">
+    <div class="slide-label">The Solution</div>
+    <h2 style="color:white;">Three things we fixed.</h2>
+    <div class="card-grid card-grid-3" style="max-width:1000px; margin-top:8px;">
+      <div class="card animate-in" style="--delay:0.08s;">
+        <div class="icon-circle" style="background:#D1FAE5;">🚫</div>
+        <h3>Kill the no-show</h3>
+        <p style="font-size:14px; color:var(--ink-soft); line-height:1.6;">Auto-release desks after a grace period. No check-in = desk freed for the next person on the waitlist. No manual chasing.</p>
+      </div>
+      <div class="card animate-in" style="--delay:0.16s;">
+        <div class="icon-circle" style="background:#EEF2FF;">🗺️</div>
+        <h3>Team coordination</h3>
+        <p style="font-size:14px; color:var(--ink-soft); line-height:1.6;">See where colleagues are sitting before you commute in. Managers can block-book team zones and teammates claim from a shared pool.</p>
+      </div>
+      <div class="card animate-in" style="--delay:0.24s;">
+        <div class="icon-circle" style="background:#FEF3C7;">📊</div>
+        <h3>Honest data</h3>
+        <p style="font-size:14px; color:var(--ink-soft); line-height:1.6;">Booked ≠ occupied. Track check-ins separately to see real utilisation, peak days, no-show rates, and room hoarding patterns.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Feature — Book in seconds (3 ways) -->
+  <div class="slide slide-feature" data-slide="3">
+    <div class="slide-label">Feature 1 of 5</div>
+    <h2>Three ways to book.<br>Choose your speed.</h2>
+    <div class="card-grid card-grid-3" style="max-width:1000px; margin-top:12px;">
+      <div class="card animate-in" style="--delay:0.08s; border-top:3px solid var(--brand);">
+        <div style="font-size:32px; margin-bottom:12px;">⚡</div>
+        <h3 style="color:var(--brand); margin-bottom:8px;">Quick Book</h3>
+        <p style="font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:12px;">Tap, pick a date and slot, confirm. Under 5 seconds.</p>
+        <span style="font-size:11px; background:var(--brand-light); color:var(--brand); padding:3px 10px; border-radius:20px; font-weight:600;">Best for: daily routine</span>
+      </div>
+      <div class="card animate-in" style="--delay:0.16s; border-top:3px solid #10B981;">
+        <div style="font-size:32px; margin-bottom:12px;">💬</div>
+        <h3 style="color:#065F46; margin-bottom:8px;">Chat to Book</h3>
+        <p style="font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:12px;"><em>"Book me a quiet desk near my team tomorrow morning"</em><br>Bot finds the best match.</p>
+        <span style="font-size:11px; background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:20px; font-weight:600;">Best for: specific needs</span>
+      </div>
+      <div class="card animate-in" style="--delay:0.24s; border-top:3px solid #F59E0B;">
+        <div style="font-size:32px; margin-bottom:12px;">🗺️</div>
+        <h3 style="color:#92400E; margin-bottom:8px;">Floor Plan</h3>
+        <p style="font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:12px;">Browse the actual office layout. See who's where, pick a specific desk by number.</p>
+        <span style="font-size:11px; background:#FEF3C7; color:#92400E; padding:3px 10px; border-radius:20px; font-weight:600;">Best for: visual planners</span>
+      </div>
+    </div>
+    <p style="font-size:13px; color:var(--ink-soft); margin-top:20px;" class="animate-in" style="--delay:0.32s;">
+      🔴 <strong>DEMO:</strong> Open Chat tab → type "Book me a quiet desk near my team tomorrow morning"
+    </p>
+  </div>
+
+  <!-- SLIDE 5: Feature — Chat to Book detail -->
+  <div class="slide slide-feature" data-slide="4">
+    <div class="slide-label">Feature 2 of 5</div>
+    <h2>Natural language booking.</h2>
+    <div class="feature-layout">
+      <div>
+        <div class="feature-points">
+          <div class="feature-point animate-in" style="--delay:0.06s">
+            <div class="point-dot brand">🧠</div>
+            <div class="point-text">
+              <h4>Understands real requests</h4>
+              <p>Parses date, slot, zone preference, and resource type from plain English — no dropdowns required.</p>
+            </div>
+          </div>
+          <div class="feature-point animate-in" style="--delay:0.12s">
+            <div class="point-dot accent">📍</div>
+            <div class="point-text">
+              <h4>Team proximity awareness</h4>
+              <p>"Near my team" finds desks in the same cluster as your already-booked colleagues.</p>
+            </div>
+          </div>
+          <div class="feature-point animate-in" style="--delay:0.18s">
+            <div class="point-dot brand">🎯</div>
+            <div class="point-text">
+              <h4>One-tap confirm</h4>
+              <p>Bot explains its reasoning, then a single tap books the desk — no second-guessing.</p>
+            </div>
+          </div>
+          <div class="feature-point animate-in" style="--delay:0.24s">
+            <div class="point-dot warn">🔄</div>
+            <div class="point-text">
+              <h4>Graceful fallback</h4>
+              <p>If constraints can't be met, explains why and suggests the next-best option.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="animate-in" style="--delay:0.1s">
+        <div class="phone-mockup">
+          <div class="phone-screen">
+            <div class="phone-screen-inner" style="background:#F9FAFB; display:flex; flex-direction:column; padding:12px;">
+              <div style="font-size:10px; font-weight:700; color:var(--ink); padding:8px 0 14px; text-align:center; border-bottom:1px solid var(--line); margin-bottom:12px;">💬 Chat to Book</div>
+              <div class="chat-msg chat-user" style="font-size:10px;">Book me a quiet desk near my team tomorrow morning</div>
+              <div style="display:flex; align-items:center; gap:6px; margin:6px 0 8px; font-size:9px; color:var(--ink-soft);">
+                <div style="width:16px;height:16px;border-radius:50%;background:var(--brand); display:flex;align-items:center;justify-content:center;color:white;font-size:8px;">🤖</div>
+                DeskBot is thinking…
+              </div>
+              <div class="chat-msg chat-bot" style="font-size:10px;">
+                <strong style="color:var(--brand);">Found it! 🎯</strong><br>
+                <strong>Desk 22</strong> — Quiet Zone<br>
+                Near Ade &amp; Leo (Devs)<br>
+                Tomorrow · Morning
+                <div class="chat-confirm-btn" style="margin-top:8px; font-size:10px;">✓ Book Desk 22</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Feature — Floor Plan + Team Reservation -->
+  <div class="slide slide-feature" data-slide="5">
+    <div class="slide-label">Feature 3 of 5</div>
+    <h2>Interactive floor plan.<br>Team blocking.</h2>
+    <div class="feature-layout">
+      <div class="feature-points">
+        <div class="feature-point animate-in" style="--delay:0.06s">
+          <div class="point-dot brand">🏢</div>
+          <div class="point-text">
+            <h4>32 desks · 5 meeting rooms</h4>
+            <p>Real office geometry with zones: Standard, Quiet, and Collaboration areas. Standing desks marked.</p>
+          </div>
+        </div>
+        <div class="feature-point animate-in" style="--delay:0.12s">
+          <div class="point-dot accent">👥</div>
+          <div class="point-text">
+            <h4>See your team before you commute</h4>
+            <p>Colour-coded by team. See Ade and Leo's desks before you even leave home.</p>
+          </div>
+        </div>
+        <div class="feature-point animate-in" style="--delay:0.18s">
+          <div class="point-dot warn">🔒</div>
+          <div class="point-text">
+            <h4>Team reservation mode</h4>
+            <p>Managers multi-select desks, set a hold window (1–4 hrs), and teammates claim from the reserved pool — no scramble.</p>
+          </div>
+        </div>
+        <div class="feature-point animate-in" style="--delay:0.24s">
+          <div class="point-dot brand">📅</div>
+          <div class="point-text">
+            <h4>Browse future availability</h4>
+            <p>Switch between 7 upcoming days and morning/afternoon slots to find your perfect day.</p>
+          </div>
+        </div>
+      </div>
+      <div class="animate-in" style="--delay:0.1s">
+        <div class="phone-mockup">
+          <div class="phone-screen">
+            <div class="phone-screen-inner" style="background:#F0F4FF; padding:10px 6px;">
+              <div style="font-size:9px; font-weight:700; color:var(--ink); text-align:center; margin-bottom:8px;">🗺️ Floor Plan · Today</div>
+              <div style="background:white; border-radius:12px; padding:4px;">
+                <div class="desk-grid">
+                  <div class="desk-mini booked" style="background:#3B82F6;">AD</div>
+                  <div class="desk-mini booked" style="background:#8B5CF6;">EV</div>
+                  <div class="desk-mini booked" style="background:#EC4899;">AN</div>
+                  <div class="desk-mini booked" style="background:#F97316;">ZO</div>
+                  <div class="desk-mini booked" style="background:#14B8A6;">MI</div>
+                  <div class="desk-mini booked" style="background:#EC4899;">JO</div>
+                  <div class="desk-mini booked" style="background:#3B82F6;">LE</div>
+                  <div class="desk-mini booked" style="background:#10B981;">AI</div>
+                  <div class="desk-mini team" style="background:#8B5CF6;">AR</div>
+                  <div class="desk-mini team" style="background:#8B5CF6;">RA</div>
+                  <div class="desk-mini booked" style="background:#10B981;">NI</div>
+                  <div class="desk-mini booked" style="background:#F97316;">RA</div>
+                  <div class="desk-mini booked" style="background:#14B8A6;">MK</div>
+                  <div class="desk-mini booked" style="background:#EC4899;">ANA</div>
+                  <div class="desk-mini team" style="background:#8B5CF6; font-size:8px;">QA</div>
+                  <div class="desk-mini free">–</div>
+                  <div class="desk-mini booked" style="background:#3B82F6;">LE</div>
+                  <div class="desk-mini booked" style="background:#3B82F6;">AD</div>
+                  <div class="desk-mini booked" style="background:#F97316;">ZO</div>
+                  <div class="desk-mini booked" style="background:#EC4899;">JO</div>
+                  <div class="desk-mini booked" style="background:#10B981;">NI</div>
+                  <div class="desk-mini booked" style="background:#F97316;">RA</div>
+                  <div class="desk-mini booked" style="background:#8B5CF6;">EV</div>
+                  <div class="desk-mini me">ME</div>
+                  <div class="desk-mini booked" style="background:#14B8A6;">MI</div>
+                  <div class="desk-mini booked" style="background:#3B82F6;">LE</div>
+                  <div class="desk-mini booked" style="background:#10B981;">AI</div>
+                  <div class="desk-mini booked" style="background:#EC4899;">AN</div>
+                  <div class="desk-mini booked" style="background:#8B5CF6;">AR</div>
+                  <div class="desk-mini booked" style="background:#F97316;">RA</div>
+                  <div class="desk-mini booked" style="background:#3B82F6;">AD</div>
+                  <div class="desk-mini booked" style="background:#EC4899;">JO</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; padding:2px;">
+                <div style="font-size:8px; display:flex; align-items:center; gap:3px; color:var(--ink-soft);"><span style="width:8px;height:8px;border-radius:2px;background:#4F46E5;display:inline-block;"></span>You</div>
+                <div style="font-size:8px; display:flex; align-items:center; gap:3px; color:var(--ink-soft);"><span style="width:8px;height:8px;border-radius:2px;background:#8B5CF6;display:inline-block;"></span>Team hold</div>
+                <div style="font-size:8px; display:flex; align-items:center; gap:3px; color:var(--ink-soft);"><span style="width:8px;height:8px;border-radius:2px;background:#E5E7EB;display:inline-block;"></span>Free</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: Feature — Check-in & Waitlist -->
+  <div class="slide slide-data" data-slide="6">
+    <div class="slide-label">Feature 4 of 5</div>
+    <h2>Check-in kills no-shows.<br>Waitlist fills gaps.</h2>
+    <div class="card-grid card-grid-2" style="max-width:920px; margin-top:12px;">
+      <div class="card-dark animate-in" style="--delay:0.08s;">
+        <div style="font-size:28px; margin-bottom:12px;">📲</div>
+        <h3 style="color:white; margin-bottom:12px;">Auto-release via QR check-in</h3>
+        <div class="timeline" style="margin-top:4px;">
+          <div class="timeline-item">
+            <div class="timeline-line"></div>
+            <div class="timeline-dot" style="font-size:14px;">📅</div>
+            <div class="timeline-content">
+              <div class="timeline-time">09:00</div>
+              <h4>Desk booked</h4>
+              <p>Slot begins, 1-hour grace period starts</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-line"></div>
+            <div class="timeline-dot" style="font-size:14px;">📱</div>
+            <div class="timeline-content">
+              <div class="timeline-time">09:15</div>
+              <h4>QR scan on arrival</h4>
+              <p>Booking confirmed — desk stays locked</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" style="font-size:14px; background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.4);">⚡</div>
+            <div class="timeline-content">
+              <div class="timeline-time">10:00</div>
+              <h4 style="color:#F87171;">No check-in? Auto-released</h4>
+              <p>Desk freed for waitlisted person</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-dark animate-in" style="--delay:0.16s;">
+        <div style="font-size:28px; margin-bottom:12px;">⏳</div>
+        <h3 style="color:white; margin-bottom:16px;">Office full? Join the waitlist.</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="flow-step">🙋 All 32 desks booked → join waitlist</div>
+          <div style="text-align:center; color:rgba(255,255,255,0.3); font-size:20px;">↓</div>
+          <div class="flow-step">🔔 Someone cancels or gets auto-released</div>
+          <div style="text-align:center; color:rgba(255,255,255,0.3); font-size:20px;">↓</div>
+          <div class="flow-step" style="border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.08);">✅ Auto-booked + notification sent</div>
+        </div>
+        <div class="notif-toast" style="margin-top:16px;">
+          <div class="notif-icon">🎉</div>
+          <div class="notif-text">
+            <div class="notif-title">A spot opened up!</div>
+            <div class="notif-body">You've been auto-booked for Desk 7 from the waitlist. Tomorrow · Morning.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: Feature — Insights -->
+  <div class="slide slide-data" data-slide="7">
+    <div class="slide-label">Feature 5 of 5</div>
+    <h2>Insights that tell you<br>what to actually fix.</h2>
+    <div class="card-grid card-grid-2" style="max-width:960px; margin-top:12px;">
+      <div class="card-dark animate-in" style="--delay:0.08s;">
+        <h3 style="color:white; margin-bottom:16px; font-size:16px;">Booked vs. actually occupied — by day</h3>
+        <div style="display:flex; gap:8px; margin-bottom:10px; font-size:11px; color:rgba(255,255,255,0.5);">
+          <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:rgba(99,102,241,0.7); display:inline-block;"></span>Booked</span>
+          <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#10B981; display:inline-block;"></span>Checked in</span>
+        </div>
+        <div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); margin-bottom:4px;">Mon</div>
+          <div class="insight-bar-bg" style="margin-bottom:2px;"><div class="insight-bar-fill booked" style="width:65%;"></div></div>
+          <div class="insight-bar-bg" style="margin-bottom:10px;"><div class="insight-bar-fill checkedin" style="width:52%;"></div></div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); margin-bottom:4px;">Tue</div>
+          <div class="insight-bar-bg" style="margin-bottom:2px;"><div class="insight-bar-fill booked" style="width:88%;"></div></div>
+          <div class="insight-bar-bg" style="margin-bottom:10px;"><div class="insight-bar-fill checkedin" style="width:71%;"></div></div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); margin-bottom:4px;">Wed</div>
+          <div class="insight-bar-bg" style="margin-bottom:2px;"><div class="insight-bar-fill booked" style="width:85%;"></div></div>
+          <div class="insight-bar-bg" style="margin-bottom:10px;"><div class="insight-bar-fill checkedin" style="width:68%;"></div></div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); margin-bottom:4px;">Thu</div>
+          <div class="insight-bar-bg" style="margin-bottom:2px;"><div class="insight-bar-fill booked" style="width:72%;"></div></div>
+          <div class="insight-bar-bg" style="margin-bottom:10px;"><div class="insight-bar-fill checkedin" style="width:58%;"></div></div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); margin-bottom:4px;">Fri</div>
+          <div class="insight-bar-bg" style="margin-bottom:2px;"><div class="insight-bar-fill booked" style="width:28%;"></div></div>
+          <div class="insight-bar-bg"><div class="insight-bar-fill checkedin" style="width:21%;"></div></div>
+        </div>
+      </div>
+      <div class="card-dark animate-in" style="--delay:0.16s;">
+        <h3 style="color:white; margin-bottom:16px; font-size:16px;">AI-generated insights</h3>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:10px; padding:12px;">
+            <div style="font-size:11px; font-weight:700; color:#F87171; margin-bottom:4px;">⚠ No-show waste</div>
+            <p style="font-size:12px; color:rgba(255,255,255,0.7);">~20% of bookings were no-shows. Auto-release reclaimed those desks for people waiting.</p>
+          </div>
+          <div style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.2); border-radius:10px; padding:12px;">
+            <div style="font-size:11px; font-weight:700; color:#A78BFA; margin-bottom:4px;">🔒 Room hoarding</div>
+            <p style="font-size:12px; color:rgba(255,255,255,0.7);">"Atlas" booked by PM team 85% of days. Consider time-limits on all-day room bookings.</p>
+          </div>
+          <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:10px; padding:12px;">
+            <div style="font-size:11px; font-weight:700; color:#34D399; margin-bottom:4px;">📉 Underused Fridays</div>
+            <p style="font-size:12px; color:rgba(255,255,255,0.7);">Fri is at 25% occupancy. Nudge flexible teams to shift one day to Friday to balance the load.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Demo Agenda -->
+  <div class="slide slide-data" data-slide="8">
+    <div class="slide-label">Live Demo — 10 minutes</div>
+    <h2>What we'll show you.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:900px; width:100%; margin-top:16px;">
+      <div class="card-dark animate-in" style="--delay:0.06s; padding:18px 22px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:8px;">0:00 – 1:30</div>
+        <h4 style="color:white; font-size:15px; margin-bottom:4px;">🏠 Home dashboard</h4>
+        <p style="font-size:12px; color:rgba(255,255,255,0.55);">Today's booking, team presence, office occupancy at a glance.</p>
+      </div>
+      <div class="card-dark animate-in" style="--delay:0.1s; padding:18px 22px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:8px;">1:30 – 3:30</div>
+        <h4 style="color:white; font-size:15px; margin-bottom:4px;">💬 Chat to book</h4>
+        <p style="font-size:12px; color:rgba(255,255,255,0.55);">Natural language → instant booking. Zero forms.</p>
+      </div>
+      <div class="card-dark animate-in" style="--delay:0.14s; padding:18px 22px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:8px;">3:30 – 5:30</div>
+        <h4 style="color:white; font-size:15px; margin-bottom:4px;">🗺️ Floor plan + team block</h4>
+        <p style="font-size:12px; color:rgba(255,255,255,0.55);">Visual layout, team zone reservation, claim your desk.</p>
+      </div>
+      <div class="card-dark animate-in" style="--delay:0.18s; padding:18px 22px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:8px;">5:30 – 7:00</div>
+        <h4 style="color:white; font-size:15px; margin-bottom:4px;">📲 QR check-in</h4>
+        <p style="font-size:12px; color:rgba(255,255,255,0.55);">Simulate scan → auto-release no-shows → waitlist promotion.</p>
+      </div>
+      <div class="card-dark animate-in" style="--delay:0.22s; padding:18px 22px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:8px;">7:00 – 9:00</div>
+        <h4 style="color:white; font-size:15px; margin-bottom:4px;">⏳ Waitlist live</h4>
+        <p style="font-size:12px; color:rgba(255,255,255,0.55);">All 32 desks full. Join waitlist, trigger release, get auto-booked.</p>
+      </div>
+      <div class="card-dark animate-in" style="--delay:0.26s; padding:18px 22px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:8px;">9:00 – 10:00</div>
+        <h4 style="color:white; font-size:15px; margin-bottom:4px;">📊 Office insights</h4>
+        <p style="font-size:12px; color:rgba(255,255,255,0.55);">Utilisation chart, no-show data, room hoarding — real actions from real data.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: User Flow Diagram — Manager 48h Invite Flow -->
+  <div class="slide slide-data" data-slide="9">
+    <div class="slide-label">User Flow Diagram</div>
+    <h2 style="font-size:clamp(20px,2.4vw,34px); margin-bottom:18px;">Manager reserves desks → invites team → 48h to claim</h2>
+
+    <div class="vflow animate-in" style="--delay:0.05s;">
+
+      <div class="vflow-step" style="border-left:3px solid rgba(79,70,229,0.7);">
+        <div class="vflow-actor" style="background:rgba(79,70,229,0.15); color:#A5B4FC;">👔 Manager</div>
+        <div class="vflow-step-icon">🗺️</div>
+        <div class="vflow-step-content">
+          <strong>Select desks &amp; build invite list</strong>
+          <p>Multi-selects up to 10 desks on the floor plan · Adds team members + optional external guests · Sets 48h claim window</p>
+        </div>
+      </div>
+
+      <div class="vflow-connector"><div class="vflow-connector-line"></div><div class="vflow-connector-arrow"></div></div>
+
+      <div class="vflow-step" style="border-left:3px solid rgba(16,185,129,0.7);">
+        <div class="vflow-actor" style="background:rgba(16,185,129,0.15); color:#34D399;">⚙️ System</div>
+        <div class="vflow-step-icon">🔒</div>
+        <div class="vflow-step-content">
+          <strong>Lock desks &amp; fire invitations</strong>
+          <p>Desks status → <code style="font-size:10px;background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:4px;">team_reserved</code> · Email + push notification sent immediately to all invitees · 24h reminder queued</p>
+        </div>
+      </div>
+
+      <div class="vflow-connector"><div class="vflow-connector-line"></div><div class="vflow-connector-arrow"></div></div>
+
+      <div class="vflow-step" style="border-left:3px solid rgba(245,158,11,0.7);">
+        <div class="vflow-actor" style="background:rgba(245,158,11,0.15); color:#FCD34D;">👤 Team / Guest</div>
+        <div class="vflow-step-icon">🔔</div>
+        <div class="vflow-step-content">
+          <strong>Receives "Reserve your desk" invite</strong>
+          <p>Email with magic claim link · Push notification with 48h countdown · Opens app → floor plan highlights reserved pool</p>
+        </div>
+      </div>
+
+      <div class="vflow-connector"><div class="vflow-connector-line"></div><div class="vflow-connector-arrow"></div></div>
+
+      <div class="vflow-step" style="border-left:3px solid rgba(245,158,11,0.7);">
+        <div class="vflow-actor" style="background:rgba(245,158,11,0.15); color:#FCD34D;">👤 Team / Guest</div>
+        <div class="vflow-step-icon">📱</div>
+        <div class="vflow-step-content">
+          <strong>Picks a desk from the reserved pool</strong>
+          <p>Taps any available team-reserved desk on the map · One-tap confirm · Countdown visible until they act</p>
+        </div>
+      </div>
+
+      <div class="vflow-branch-label">↓ &nbsp; what happens at the 48h mark?</div>
+
+      <div class="vflow-outcomes">
+        <div class="vflow-outcome yes">
+          <div class="vflow-outcome-icon">✅</div>
+          <div>
+            <strong>Claimed within 48h</strong>
+            <p>Desk status → reserved · Booking confirmation sent · Appears on floor plan under their name</p>
+          </div>
+        </div>
+        <div class="vflow-outcome no">
+          <div class="vflow-outcome-icon">🔓</div>
+          <div>
+            <strong>Not claimed — auto-released</strong>
+            <p>Desk returns to free pool · Waitlisted users notified · Manager sees unclaimed count in insights</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SLIDE 11: Future Features — With More Time -->
+  <div class="slide slide-roadmap" data-slide="10">
+    <div class="slide-label">With More Time</div>
+    <h2 style="margin-bottom:20px;">What we'd build next.</h2>
+
+    <div class="card-grid card-grid-2" style="max-width:980px;">
+      <div class="card-dark animate-in" style="--delay:0.06s; border-left:3px solid #818CF8;">
+        <div style="font-size:28px; margin-bottom:10px;">🔲</div>
+        <h3 style="color:white; font-size:17px; margin-bottom:8px;">Walk-up QR Booking</h3>
+        <p style="font-size:13px; color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:10px;">Scan the QR code on any free desk to book it on the spot — no navigation, no searching. Walk in, find a desk you like, scan and it's yours.</p>
+        <span style="font-size:11px; background:rgba(129,140,248,0.15); color:#A5B4FC; padding:4px 10px; border-radius:20px; font-weight:600;">Zero-friction last-minute booking</span>
+      </div>
+
+      <div class="card-dark animate-in" style="--delay:0.12s; border-left:3px solid #34D399;">
+        <div style="font-size:28px; margin-bottom:10px;">📧</div>
+        <h3 style="color:white; font-size:17px; margin-bottom:8px;">Managed Invites + 48h Claim Window</h3>
+        <p style="font-size:13px; color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:10px;">Manager reserves a block of desks and sends email or push invites to team members and guests. Each person gets 48 hours to claim their spot before it auto-releases.</p>
+        <span style="font-size:11px; background:rgba(52,211,153,0.15); color:#34D399; padding:4px 10px; border-radius:20px; font-weight:600;">Guaranteed spots for key collaboration days</span>
+      </div>
+
+      <div class="card-dark animate-in" style="--delay:0.18s; border-left:3px solid #FBBF24;">
+        <div style="font-size:28px; margin-bottom:10px;">📅</div>
+        <h3 style="color:white; font-size:17px; margin-bottom:8px;">Calendar Integration</h3>
+        <p style="font-size:13px; color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:10px;">Sync desk bookings with Google Calendar and Outlook. See your desk next to your meetings — and get smart nudges to book on days you already have in-office events.</p>
+        <span style="font-size:11px; background:rgba(251,191,36,0.15); color:#FCD34D; padding:4px 10px; border-radius:20px; font-weight:600;">One view for your whole day</span>
+      </div>
+
+      <div class="card-dark animate-in" style="--delay:0.24s; border-left:3px solid #F472B6;">
+        <div style="font-size:28px; margin-bottom:10px;">🤖</div>
+        <h3 style="color:white; font-size:17px; margin-bottom:8px;">Smarter AI with Claude API</h3>
+        <p style="font-size:13px; color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:10px;">Replace the local resolver with Claude API for richer intent understanding, multi-turn conversations, and booking suggestions that learn your patterns over time.</p>
+        <span style="font-size:11px; background:rgba(244,114,182,0.15); color:#F9A8D4; padding:4px 10px; border-radius:20px; font-weight:600;">Booking that improves with use</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: Closing -->
+  <div class="slide slide-closing" data-slide="11">
+    <div class="slide-label">Wrap-up</div>
+    <h1>Book smarter.<br><span style="color:#818CF8;">Show up better.</span></h1>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:780px; margin:32px 0;" class="animate-in" style="--delay:0.1s">
+      <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.05); border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:28px; margin-bottom:8px;">🚫</div>
+        <p style="font-size:13px; color:rgba(255,255,255,0.7);">No-shows become freed desks, not wasted space</p>
+      </div>
+      <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.05); border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:28px; margin-bottom:8px;">👥</div>
+        <p style="font-size:13px; color:rgba(255,255,255,0.7);">Teams coordinate without fighting over desks</p>
+      </div>
+      <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.05); border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:28px; margin-bottom:8px;">📊</div>
+        <p style="font-size:13px; color:rgba(255,255,255,0.7);">Office managers get data they can actually act on</p>
+      </div>
+    </div>
+    <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-bottom:16px;" class="animate-in" style="--delay:0.2s">
+      <div class="tech-badge">⚛️ React 18 + TypeScript</div>
+      <div class="tech-badge">📱 Mobile-first PWA</div>
+      <div class="tech-badge">💬 AI chat resolver</div>
+      <div class="tech-badge">📊 Recharts analytics</div>
+    </div>
+    <p style="color:rgba(255,255,255,0.35); font-size:14px; margin-top:8px;" class="animate-in" style="--delay:0.28s">
+      Built at Internal Hackathon 2026 · Questions?
+    </p>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>←</button>
+  <div class="progress-dots" id="dots"></div>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let current = 0;
+
+  function buildDots() {
+    const dotsEl = document.getElementById('dots');
+    for (let i = 0; i < totalSlides; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.onclick = () => goTo(i);
+      dotsEl.appendChild(d);
+    }
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= totalSlides || index === current) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current - (index > current ? 0 : 0)].classList.remove('exit'), 400);
+
+    const prev = current;
+    current = index;
+
+    setTimeout(() => slides[prev].classList.remove('exit'), 400);
+    slides[current].classList.add('active');
+
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === totalSlides - 1;
+    document.getElementById('slideNumber').textContent =
+      String(current + 1).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+  });
+
+  // Touch / swipe
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) changeSlide(dx < 0 ? 1 : -1);
+  });
+
+  buildDots();
+</script>
+</body>
+</html>

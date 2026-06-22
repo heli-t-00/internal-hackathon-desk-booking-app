@@ -10,7 +10,8 @@
 
 - [The challenge](#the-challenge)
 - [Setup guide](#setup-guide)
-- [Choosing models & thinking](#choosing-models--thinking)
+- [Choosing models 
+- & thinking](#choosing-models--thinking)
 - [Security — where to run Claude](#security--where-to-run-claude)
 - [On the day checklist](#on-the-day-checklist)
 - [Troubleshooting](#troubleshooting)
