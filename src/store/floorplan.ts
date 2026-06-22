@@ -6,6 +6,11 @@ import type { Desk, Room, Zone } from './types'
 
 export const VIEWBOX = { w: 1000, h: 640 }
 
+// Expanded canvas that includes the surrounding street context
+export const CONTEXT_VIEWBOX = { w: 1400, h: 900 }
+// How much the office content is shifted inside the expanded canvas
+export const CONTEXT_OFFSET = { x: 200, y: 155 }
+
 export const DESK_W = 34
 export const DESK_H = 42
 
