@@ -12,7 +12,7 @@ export function DemoClock() {
         position: 'fixed',
         top: 'calc(var(--tracker-h) + 10px + env(safe-area-inset-top))',
         right: 10,
-        zIndex: 45,
+        zIndex: 90, // above the notification shade, so you can fast-forward and watch releases stream in
         display: 'flex',
         alignItems: 'center',
         gap: 6,

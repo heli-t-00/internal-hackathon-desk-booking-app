@@ -166,6 +166,17 @@ export function seedState(): StoreState {
   pushBooking({ resourceId: 'room-atlas', resourceType: 'room', userId: 'user-jt', date: todayKey, slot: 'allday', status: 'checked_in', createdAt: nowMs - 4 * 3600_000 }, true)
   pushBooking({ resourceId: 'room-gerardus', resourceType: 'room', userId: 'user-nd', date: todayKey, slot: 'morning', status: 'reserved', createdAt: nowMs - 3600_000 }, false)
 
+  // A couple of recent cancellations today — frees desks and drives the notification feed.
+  const freeNums = ALL_DESK_NUMBERS.filter((n) => !occupiedToday.has(n))
+  const cancellations: Array<[number | undefined, string, number]> = [
+    [freeNums[0], 'user-ar', nowMs - 8 * 60_000], // Ana Ruiz freed a desk 8 min ago
+    [freeNums[1], 'user-rc', nowMs - 31 * 60_000], // Raj Chand freed one 31 min ago
+  ]
+  for (const [n, uid, at] of cancellations) {
+    if (n == null) continue
+    pushBooking({ resourceId: `desk-${n}`, resourceType: 'desk', userId: uid, date: todayKey, slot: 'allday', status: 'cancelled', createdAt: at }, false)
+  }
+
   return {
     teams: TEAMS,
     users: USERS,
@@ -177,6 +188,8 @@ export function seedState(): StoreState {
     teamReservations: [],
     notifications: [],
     currentUserId: 'user-1',
+    // A cross-team friend group — some are in today, some cancelled, some are quiet.
+    friendIds: ['user-ag', 'user-zs', 'user-jt', 'user-lp', 'user-rc'],
     nowMs,
     lastError: null,
     lastPromotion: null,

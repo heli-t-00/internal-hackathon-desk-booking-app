@@ -99,6 +99,7 @@ export interface StoreState {
   teamReservations: TeamReservation[]
   notifications: AppNotification[]
   currentUserId: UserId
+  friendIds: UserId[] // people you've favourited — drives the "friends booked in" feed
   nowMs: number // demo clock
   lastError: string | null
   lastPromotion: string | null // shown as a success notification when user is promoted off the waitlist
